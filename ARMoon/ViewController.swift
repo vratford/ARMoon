@@ -11,23 +11,25 @@ import SceneKit
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
+    
+        var diceArray = [SCNNode]()         // initialize to empty array
 
     @IBOutlet var sceneView: ARSCNView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //        self.sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]  // debug option to display feature points
+        
+        
         // Set the view's delegate
         sceneView.delegate = self
         
-        // Show statistics such as fps and timing information
-        sceneView.showsStatistics = true
         
-        // Create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
+        displayMoon()
         
-        // Set the scene to the view
-        sceneView.scene = scene
+        
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -35,6 +37,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
+        
+        guard ARWorldTrackingConfiguration.isSupported else {
+            fatalError("AR only available on Iphone 7 or greater")
+        }
+        
+        
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -54,27 +62,27 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     // MARK: - ARSCNViewDelegate
     
-/*
-    // Override to create and configure nodes for anchors added to the view's session.
-    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
-        let node = SCNNode()
-     
-        return node
-    }
-*/
-    
-    func session(_ session: ARSession, didFailWithError error: Error) {
-        // Present an error message to the user
+    func displayMoon() {
+        
+        let sphere = SCNSphere(radius: 0.2)
+        
+        let material = SCNMaterial() // material is color red
+        
+        material.diffuse.contents = UIImage(named: "art.scnassets/moon.jpg")
+        
+        sphere.materials = [material] // passing to array
+        
+        let node = SCNNode() // point in 3d space
+        
+        node.position = SCNVector3(x: 0, y: 0, z: -0.5) // position of point
+        
+        node.geometry = sphere // node has geometry of sphere
+        
+        sceneView.scene.rootNode.addChildNode(node)  // place in sceneview
+        
+        sceneView.autoenablesDefaultLighting = true // adds light and shadows to sphere
         
     }
     
-    func sessionWasInterrupted(_ session: ARSession) {
-        // Inform the user that the session has been interrupted, for example, by presenting an overlay
-        
-    }
-    
-    func sessionInterruptionEnded(_ session: ARSession) {
-        // Reset tracking and/or remove existing anchors if consistent tracking is required
-        
-    }
+
 }
